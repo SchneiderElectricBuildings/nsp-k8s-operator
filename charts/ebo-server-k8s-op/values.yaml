@@ -1,0 +1,146 @@
+replicaCount: 1
+
+image:
+  registry: ghcr.io/schneiderelectricbuildings/
+  pullPolicy: Always
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: ""
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+service:
+  type: ClusterIP
+  port: 8080
+
+crd:
+  install: true
+
+logLevel: info
+configPath: "/app/config/config.yaml"
+tracing:
+  enabled: false
+  endpoint: "http://alloy.monitoring.svc.cluster.local:4318/v1/traces"
+
+topologySpreadConstraints:
+  - maxSkew: 1
+    topologyKey: "kubernetes.io/hostname"
+    whenUnsatisfiable: ScheduleAnyway
+
+probes:
+  liveness:
+    enabled: true
+    path: /livez
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    timeoutSeconds: 2
+    failureThreshold: 3
+
+  readiness:
+    enabled: true
+    path: /readyz
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    timeoutSeconds: 2
+    failureThreshold: 3
+
+config:
+  namespaceScope: ""              # Namespace scope for the operator. If set, operator will watch only this namespace. For example "ebo-namespace". If empty, operator will watch all namespaces.
+  #EBO server specific config
+  ebo:
+    environment: ""               # environment. Will be added to domain if specified. For example {name}-{namespace}-{environment}.{domain}
+    backups: 5                    # Amount of backups to store on backup pvc
+    labels: {}                    # Ebo pod labels
+    annotations: {}               # Ebo pod annotations
+    nodeSelector: {}
+    tolerations: []
+    # - key: "ebo"
+    #   operator: "Equal"
+    #   value: "true"
+    #   effect: "NoSchedule"
+    registry: "ghcr.io/schneiderelectricbuildings/"   # registry used for Ebo images
+    pullSecret: ""                                    # pull secret for Ebo images
+    customConfigSecret: "ebo-default-custom-config"   # custom config secret for Ebo pods, contains mail config etc
+    nspMachineId: false                               # if true, use nsp machine id for ebo pods
+    probes:                                           # liveness and readiness probes for ebo pods
+      liveness: 
+        enabled: true                                  # enable liveness probe
+        initialDelaySeconds: 10                        # initial delay before liveness probe starts
+        periodSeconds: 5                               # period between liveness probes  
+        timeoutSeconds: 2                              # timeout for liveness probe 
+        failureThreshold: 3                            # failure threshold for liveness probe
+        path: "/prelogin-info"                         # liveness path                
+      readiness:  
+        enabled: true                                  # enable readiness probe
+        initialDelaySeconds: 10                        # initial delay before readiness probe starts
+        periodSeconds: 5                               # period between readiness probes
+        timeoutSeconds: 2                              # timeout for readiness probe
+        failureThreshold: 3                            # failure threshold for readiness probe
+        path: "/prelogin-info"                         # readiness path
+    utils:
+      registry: ""                  # registry for utils container, used by init container and cronjobs
+      image: "ubuntu:noble"
+    ingress:
+      domain: "example.com"         # ingress domain
+      namespaceInDomain: true       # namespace in domain flag. If true ingress domain will be {name}-{namespace}.{domain}
+      hostnameSeparator: "-"        # hostname separator. For example: "-" will result with {name}-{namespace}
+      controller:
+        enabled: true               # if true, create ingress for ebo server
+        annotations: {}             # ingress annotations
+        certSecretName: ""          # ingress cert secret name
+        ingressClass: traefik       # ingress class
+      istioGateway:
+        enabled: false                             # if true, create istio gateway for ebo server
+        gatewayName: "ebo-gateway"                 # istio gateway name
+        istioNamespace: "istio-system"            # istio namespace
+        certIssuerName: "letsencrypt-prod-issuer"  # cert-manager issuer name
+        certIssuerKind: "ClusterIssuer"            # cert-manager issuer kind
+    proxy:                          # Ebo proxy config, Sets Env vars like HTTP_PROXY, HTTPS_PROXY, NO_PROXY
+      enabled: false
+      address: ""
+      noProxyList: "localhost,127.0.0.0/8,10.0.0.0/8,cluster.local,.cluster.local,svc.cluster.local,.svc.cluster.local"
+    initialPassword:                # Initial password for Ebo pods, if true sets random password.
+      enabled: false
+      additionalTimeLimit: 15m      # Additional for password expiration. Add up to value that we get from Ba Portal
+  # Management API config
+  mgmt:
+    enabled: false
+    apiUrl: ""    
+  #Prometheus API config
+  prometheus:
+    enabled: false
+    apiUrl: ""
+
+podAnnotations: {}
+podLabels: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+resources:
+  limits:
+    cpu: 100m
+    memory: 128Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

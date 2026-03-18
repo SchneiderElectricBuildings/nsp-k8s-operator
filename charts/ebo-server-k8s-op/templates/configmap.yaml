@@ -1,0 +1,14 @@
+{{- $path := .Values.configPath | default "/app/config/config.yaml" -}}
+{{- $dir  := dir $path -}}
+{{- $file := base $path -}}
+{{- $cfg := deepCopy .Values.config -}}
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "nsp-k8s-operator-helm.fullname" . }}-config
+  labels:
+    {{- include "nsp-k8s-operator-helm.labels" . | nindent 4 }}
+data:
+  {{ $file }}: |
+    {{- toYaml $cfg | nindent 4 }}

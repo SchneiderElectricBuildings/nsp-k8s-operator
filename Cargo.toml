@@ -1,0 +1,70 @@
+[package]
+name = "nsp-k8s-operator"
+edition = "2021"
+description = "Kubernetes operator for EboServer resources"
+authors = ["Schneider Electric - Digital Buildings"]
+version = "0.4.1"
+license = "MIT"
+
+[dev-dependencies.cargo-husky]
+version = "1"
+default-features = false
+features = ["precommit-hook", "run-cargo-fmt", "run-cargo-clippy"]
+
+[dependencies]
+actix-web = "4.11"
+tokio = { version = "1.0", features = ["macros", "rt-multi-thread"] }
+kube = { version = "3.0.1", default-features = false, features = ["runtime", "derive", "rustls-tls", "aws-lc-rs"] }
+k8s-openapi = { version = "0.27.0", features = ["v1_31", "schemars"] }
+futures = "0.3"
+serde = { version = "1", features = ["derive", "rc"] }
+serde_json = "1.0"
+schemars = "1.0.4"
+thiserror = "2"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["json", "env-filter"] }
+tracing-opentelemetry = "0.32.0"
+opentelemetry = { version = "0.31.0", features = ["trace"] }
+opentelemetry-otlp = { version = "0.31.0", features = ["trace", "grpc-tonic"] }
+opentelemetry_sdk = { version = "0.31.0", features = ["rt-tokio"] }
+prometheus-client = "0.24.0"
+serde_yaml = "0.9.33"
+anyhow = "1.0"
+chrono = "0.4"
+croner = "3.0.0"
+reqwest = { version = "0.13", features = ["json", "rustls", "query"], default-features = false }
+reqwest-middleware = { version = "0.5", features = ["json", "query", "rustls"] }
+reqwest-tracing = "0.7"
+serde-inline-default = "1.0.0"
+dotenv = "0.15.0"
+rand = "0.10"
+uuid = { version = "1.18.0", features = [
+  "v4",
+  "fast-rng",
+  "macro-diagnostics",
+  "serde",
+] }
+sha2 = "0.10.9"
+config = "0.15.15"
+humantime-serde = "1.1.1"
+arc-swap = "1.7.1"
+notify = "8.2.0"
+consistent_hash_ring = "0.8"
+quick-xml = { version = "0.39", features = [
+  "serialize"
+]}
+gateway-api = { git = "https://github.com/kube-rs/gateway-api-rs", rev = "3a3dd3b9fff1035b7b45bf20de7e572912395197" } #for now untill they create new tag
+kcr_gateway_networking_x_k8s_io = "3.20260117.145034"
+kcr_cert_manager_io = "3.20260117.142700"
+async-trait = "0.1.89"
+
+[build-dependencies]
+chrono = "0.4"
+
+[lib]
+name = "controller"
+path = "src/lib.rs"
+
+[[bin]]
+name = "crdgen"
+path = "src/bin/crdgen.rs"
