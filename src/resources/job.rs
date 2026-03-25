@@ -5,7 +5,6 @@ use k8s_openapi::api::core::v1::{
 };
 use k8s_openapi::apimachinery::pkg::apis::meta::v1::ObjectMeta;
 use kube::Resource;
-use std::collections::BTreeMap;
 
 use crate::config::models::EboConfig;
 use crate::crd::v1alpha6::EboServer;
@@ -33,13 +32,7 @@ pub fn gen_upgrade_job(ebo_server: &EboServer, job_name: String, config: &EboCon
         },
         spec: Some(JobSpec {
             template: PodTemplateSpec {
-                metadata: Some(ObjectMeta {
-                    annotations: Some(BTreeMap::from([
-                        ("linkerd.io/inject".to_owned(), "disabled".to_owned()),
-                        ("config.linkerd.io/proxy-await".to_owned(), "disabled".to_owned()),
-                    ])),
-                    ..ObjectMeta::default()
-                }),
+                metadata: None,
                 spec: Some(PodSpec {
                     security_context: Some(PodSecurityContext {
                         fs_group: Some(60606),
@@ -106,13 +99,7 @@ pub fn gen_reset_password_job(ebo_server: &EboServer, job_name: String, config: 
         },
         spec: Some(JobSpec {
             template: PodTemplateSpec {
-                metadata: Some(ObjectMeta {
-                    annotations: Some(BTreeMap::from([
-                        ("linkerd.io/inject".to_owned(), "disabled".to_owned()),
-                        ("config.linkerd.io/proxy-await".to_owned(), "disabled".to_owned()),
-                    ])),
-                    ..ObjectMeta::default()
-                }),
+                metadata: None,
                 spec: Some(PodSpec {
                     security_context: Some(PodSecurityContext {
                         fs_group: Some(60606),
@@ -191,13 +178,7 @@ pub fn gen_restore_job(ebo_server: &EboServer, job_name: String, backup_name: St
         },
         spec: Some(JobSpec {
             template: PodTemplateSpec {
-                metadata: Some(ObjectMeta {
-                    annotations: Some(BTreeMap::from([
-                        ("linkerd.io/inject".to_owned(), "disabled".to_owned()),
-                        ("config.linkerd.io/proxy-await".to_owned(), "disabled".to_owned()),
-                    ])),
-                    ..ObjectMeta::default()
-                }),
+                metadata: None,
                 spec: Some(PodSpec {
                     security_context: Some(PodSecurityContext {
                         fs_group: Some(60606),
