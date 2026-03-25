@@ -3,7 +3,6 @@ use k8s_openapi::api::batch::v1::{CronJob, CronJobSpec, JobSpec, JobTemplateSpec
 use k8s_openapi::api::core::v1::{Container, LocalObjectReference, PodSpec, PodTemplateSpec};
 use k8s_openapi::apimachinery::pkg::apis::meta::v1::ObjectMeta;
 use kube::Resource;
-use std::collections::BTreeMap;
 use std::str::FromStr;
 
 use crate::config::models::EboConfig;
@@ -49,14 +48,7 @@ pub fn gen_cronjob(ebo_server: &EboServer, config: &EboConfig) -> CronJob {
                 }),
                 spec: Some(JobSpec {
                     template: PodTemplateSpec {
-                        metadata: Some(ObjectMeta {
-                            annotations: Some(BTreeMap::from([
-                                ("linkerd.io/inject".to_owned(), "enabled".to_owned()),
-                                ("config.linkerd.io/proxy-await".to_owned(), "enabled".to_owned()),
-                                ("config.linkerd.io/default-inbound-policy".to_owned(), "deny".to_owned()),
-                            ])),
-                            ..ObjectMeta::default()
-                        }),
+                        metadata: None,
                         spec: Some(PodSpec {
                             node_selector: config.node_selector.clone(),
                             tolerations: config.tolerations.clone(),
